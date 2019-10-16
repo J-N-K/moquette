@@ -3,7 +3,7 @@ allprojects  {
   apply plugin: 'maven-publish'
 
   group = 'com.github.j-n-k'
-  version = '0.13.0.OH2'
+  version = '0.13.0.OH3'
 }
 
 buildscript {

@@ -163,10 +163,15 @@ public class Server {
         final IRetainedRepository retainedRepository;
         if (persistencePath != null && !persistencePath.isEmpty()) {
             LOG.trace("Configuring H2 subscriptions store to {}", persistencePath);
-            h2Builder = new H2Builder(config, scheduler).initStore();
-            subscriptionsRepository = h2Builder.subscriptionsRepository();
-            queueRepository = h2Builder.queueRepository();
-            retainedRepository = h2Builder.retainedRepository();
+            try {
+                h2Builder = new H2Builder(config, scheduler).initStore();
+                subscriptionsRepository = h2Builder.subscriptionsRepository();
+                queueRepository = h2Builder.queueRepository();
+                retainedRepository = h2Builder.retainedRepository();
+            } catch (IllegalArgumentException | IllegalStateException e) {
+                h2Builder.closeStore();
+                throw e;
+            }
         } else {
             LOG.trace("Configuring in-memory subscriptions store");
             subscriptionsRepository = new MemorySubscriptionsRepository();
