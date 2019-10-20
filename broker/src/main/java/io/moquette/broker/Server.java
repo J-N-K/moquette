@@ -41,7 +41,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import static io.moquette.logging.LoggingUtils.getInterceptorIds;
 
 public class Server {
-
     private static final Logger LOG = LoggerFactory.getLogger(io.moquette.broker.Server.class);
 
     private ScheduledExecutorService scheduler;
@@ -169,7 +168,9 @@ public class Server {
                 queueRepository = h2Builder.queueRepository();
                 retainedRepository = h2Builder.retainedRepository();
             } catch (IllegalArgumentException | IllegalStateException e) {
-                h2Builder.closeStore();
+                if (h2Builder != null) {
+                    h2Builder.closeStore();
+                }
                 throw e;
             }
         } else {
@@ -320,6 +321,8 @@ public class Server {
         acceptor.close();
         LOG.trace("Stopping MQTT protocol processor");
         initialized = false;
+        LOG.trace("Shutting down interceptors");
+        interceptor.stop();
 
         // calling shutdown() does not actually stop tasks that are not cancelled,
         // and SessionsRepository does not stop its tasks. Thus shutdownNow().
